@@ -1,0 +1,1 @@
+import"./chunk-4CLCTAJ7.js";var o=[{path:"terms-of-service",loadComponent:()=>import("./chunk-IGYQM7HZ.js").then(t=>t.TermsOfServiceComponent)},{path:"contact",loadComponent:()=>import("./chunk-VVLA5YFG.js").then(t=>t.ContactComponent)},{path:"",redirectTo:"terms-of-service",pathMatch:"full"}];export{o as legalRoutes};

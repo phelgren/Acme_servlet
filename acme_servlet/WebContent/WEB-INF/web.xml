@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" 
+         id="WebApp_ID" 
+         version="4.0">
+
+	<session-config>
+	    <session-timeout>30</session-timeout> <!-- minutes -->
+	</session-config>
+
+
+  <!-- ========================================== -->
+  <!-- Filters (CORS and Auth) and Listeners                  -->
+  <!-- ========================================== -->
+  
+   <!-- CORS Filter (must be first) -->
+    <filter>
+        <filter-name>CORSFilter</filter-name>
+        <filter-class>com.valadd.oss.CORSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CORSFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    
+        <!-- Listeners -->
+    <!-- AS400 Connection Cleanup Listener -->
+    <listener>
+        <listener-class>com.valadd.oss.AS400ConnectionCleanupListener</listener-class>
+    </listener>
+    
+    <!-- Certificate Expiration Scheduler -->
+    <listener>
+        <listener-class>com.valadd.oss.CertificateExpirationScheduler</listener-class>
+    </listener>
+    
+    <!-- Auth Filter (for protected endpoints) -->
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>com.valadd.oss.AuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/acme</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/acme/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/user/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/api/certificates</url-pattern>
+    </filter-mapping>
+    
+    <!-- Auth Servlet -->
+    <servlet>
+        <servlet-name>AuthServlet</servlet-name>
+        <servlet-class>com.valadd.oss.AuthServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthServlet</servlet-name>
+        <url-pattern>/api/auth/login</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Config Servlet (LetsEncrypt Configurations) -->
+    <servlet>
+        <servlet-name>ConfigServlet</servlet-name>
+        <servlet-class>com.valadd.oss.ConfigServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ConfigServlet</servlet-name>
+        <url-pattern>/api/acme/*</url-pattern>
+    </servlet-mapping>
+    
+        <!-- User Info Servlet -->
+    <servlet>
+        <servlet-name>UserInfoServlet</servlet-name>
+        <servlet-class>com.valadd.oss.UserInfoServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserInfoServlet</servlet-name>
+        <url-pattern>/api/user/info</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Certificate List Servlet -->
+	<servlet>
+	    <servlet-name>CertificateListServlet</servlet-name>
+	    <servlet-class>com.valadd.oss.CertificateListServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>CertificateListServlet</servlet-name>
+	    <url-pattern>/api/certificates</url-pattern>
+	</servlet-mapping>
+
+    <!-- Logout Servlet -->
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>com.valadd.oss.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/api/auth/logout</url-pattern>
+    </servlet-mapping>
+    
+        <!-- Config Properties Servlet -->
+    <servlet>
+        <servlet-name>ConfigPropertiesServlet</servlet-name>
+        <servlet-class>com.valadd.oss.ConfigPropertiesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ConfigPropertiesServlet</servlet-name>
+        <url-pattern>/api/config/properties</url-pattern>
+    </servlet-mapping>
+ 
+     <!-- User Profile Servlet -->
+    <servlet>
+        <servlet-name>UserProfileServlet</servlet-name>
+        <servlet-class>com.valadd.oss.UserProfileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserProfileServlet</servlet-name>
+        <url-pattern>/api/user/profile</url-pattern>
+    </servlet-mapping>   
+          
+    <!-- Push Subscription Servlet -->
+    <servlet>
+        <servlet-name>PushSubscriptionServlet</servlet-name>
+        <servlet-class>com.valadd.oss.PushSubscriptionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PushSubscriptionServlet</servlet-name>
+        <url-pattern>/api/push/*</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Push Notification Servlet -->
+    <servlet>
+        <servlet-name>PushNotificationServlet</servlet-name>
+        <servlet-class>com.valadd.oss.PushNotificationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PushNotificationServlet</servlet-name>
+        <url-pattern>/api/push/test</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PushNotificationServlet</servlet-name>
+        <url-pattern>/api/push/test/*</url-pattern>
+    </servlet-mapping>
+    
+  <!-- EXISTING: Your ACME Processing Servlet -->
+  <servlet>
+    <servlet-name>processACME</servlet-name>
+    <servlet-class>com.valadd.oss.ACMEprocessing</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>processACME</servlet-name>
+    <url-pattern>/process/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- EXISTING: Your Test Servlet -->
+  <servlet>
+    <servlet-name>test</servlet-name>
+    <servlet-class>com.valadd.oss.Test</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>test</servlet-name>
+    <url-pattern>/test/*</url-pattern>
+  </servlet-mapping>
+  
+  <!-- EXISTING: FreeMarker Servlet -->
+  <servlet>
+    <servlet-name>freemarker</servlet-name>
+    <servlet-class>freemarker.ext.servlet.FreemarkerServlet</servlet-class>
+    
+    <init-param>
+      <param-name>TemplatePath</param-name>
+      <param-value>/templates/</param-value>
+    </init-param>
+    <init-param>
+      <param-name>default_encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>output_encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>locale</param-name>
+      <param-value>en_US</param-value>
+    </init-param>
+    <init-param>
+      <param-name>number_format</param-name>
+      <param-value>0.##########</param-value>
+    </init-param>
+    
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>freemarker</servlet-name>
+    <url-pattern>*.ftl</url-pattern>
+  </servlet-mapping>
+
+  <!-- ========================================== -->
+  <!-- Security Constraints                       -->
+  <!-- ========================================== -->
+  
+  <!-- Prevent direct access to FreeMarker templates -->
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>FreeMarker MVC Views</web-resource-name>
+      <url-pattern>*.ftl</url-pattern>
+      <url-pattern>*.ftlh</url-pattern>
+      <url-pattern>*.ftlx</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <!-- Nobody is allowed to visit these directly. -->
+    </auth-constraint>
+  </security-constraint>
+  
+  <!-- ========================================== -->
+  <!-- Welcome Files                              -->
+  <!-- ========================================== -->
+  
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+  
+  <!-- ========================================== -->
+  <!-- Error Pages (Optional)                     -->
+  <!-- ========================================== -->
+  
+  <error-page>
+    <error-code>404</error-code>
+    <location>/index.html</location>
+  </error-page>
+
+</web-app>

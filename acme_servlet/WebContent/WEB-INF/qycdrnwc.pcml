@@ -1,0 +1,20 @@
+<pcml version="2.0">
+
+<!-- PCML source for calling "Renew Certificate" (QYCDRNWC) API -->
+    
+  <!-- Format RNWC0300 - Other formats are available -->
+  <struct name="rnwc0300">
+    <data name="offsettofile"               type="int"    length="4"  usage="input"/>
+    <data name="lengthoffilename"           type="int"    length="4"  usage="input"/>
+    <data name="certfile"                   type="char"   length="lengthoffilename" usage="input"/>
+  </struct>
+
+  <!-- Program QYCDRNWC and its parameter list for retrieving RNWC03000 format -->
+  <program name="qycdrnwc" path="/QSYS.LIB/QICSS.LIB/QYCDRNWC.SRVPGM" entrypoint="QycdRenewCertificate">
+    <data name="certreqdata"      type="struct"   struct="rnwc0300"   usage="input"/>
+    <data name="reqdataLength"    type="int"      length="4"          usage="input" />
+    <data name="format"           type="char"     length="8"          usage="input"    init="RNWC0300"/>
+    <data name="errorCode"        type="int"      length="4"          usage="input"    init="0"/>    
+  </program>
+
+</pcml>
