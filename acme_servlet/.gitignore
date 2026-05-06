@@ -1,2 +1,7 @@
-/target/
+/META-INF/
 /build/
+/target/
+# Ignore all files in the root of WebContent
+/WebContent/*
+# Do not ignore directories (subfolders) within WebContent
+!/WebContent/*/

@@ -218,11 +218,27 @@ public class CertificateUtils {
 
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
-                Certificate cert = keyStore.getCertificate(alias);
 
-                if (cert instanceof X509Certificate) {
-                    CertInfo certInfo = extractCertificateInfo(alias, (X509Certificate) cert);
-                    certificates.add(certInfo);
+                // Check if this is a private key entry (contains both key and cert)
+                if (keyStore.isKeyEntry(alias)) {
+                    // For private key entries, get the certificate chain
+                    // The first certificate in the chain is the actual client/server certificate
+                    Certificate[] chain = keyStore.getCertificateChain(alias);
+                    if (chain != null && chain.length > 0 && chain[0] instanceof X509Certificate) {
+                        // Remove "privatekey" suffix from alias for cleaner display
+                        String cleanAlias = alias.toLowerCase().endsWith("privatekey")
+                                ? alias.substring(0, alias.length() - 10)
+                                : alias;
+                        CertInfo certInfo = extractCertificateInfo(cleanAlias, (X509Certificate) chain[0]);
+                        certificates.add(certInfo);
+                    }
+                } else {
+                    // For certificate-only entries (CA certs, trusted certs)
+                    Certificate cert = keyStore.getCertificate(alias);
+                    if (cert instanceof X509Certificate) {
+                        CertInfo certInfo = extractCertificateInfo(alias, (X509Certificate) cert);
+                        certificates.add(certInfo);
+                    }
                 }
             }
 
@@ -262,7 +278,25 @@ public class CertificateUtils {
         info.setSignatureAlgorithm(cert.getSigAlgName());
 
         // Check if it's a CA certificate
-        info.setCA(cert.getBasicConstraints() != -1);
+        // A certificate is a CA if:
+        // 1. BasicConstraints extension exists AND is marked as CA (pathLen >= 0)
+        // 2. Subject and Issuer are the same (self-signed CA)
+        int basicConstraints = cert.getBasicConstraints();
+        boolean isSelfSigned = cert.getSubjectX500Principal().equals(cert.getIssuerX500Principal());
+
+        // More robust CA detection:
+        // - If basicConstraints >= 0, it's definitely a CA
+        // - If basicConstraints == -1 but it's self-signed, it might be a CA
+        // - Otherwise, it's an end-entity (client/server) certificate
+        boolean isCA = (basicConstraints >= 0) || (basicConstraints == -1 && isSelfSigned);
+
+        info.setCA(isCA);
+
+        // Debug logging for troubleshooting
+        SystemLogger.log("Certificate: " + alias +
+                " | BasicConstraints: " + basicConstraints +
+                " | SelfSigned: " + isSelfSigned +
+                " | IsCA: " + isCA);
 
         // Check if certificate is currently valid
         Date now = new Date();
